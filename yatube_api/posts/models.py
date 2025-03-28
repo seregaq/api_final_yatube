@@ -3,10 +3,12 @@ from django.db import models
 
 User = get_user_model()
 
+
 class Group(models.Model):
     title = models.CharField(max_length=50)
     description = models.TextField()
     slug = models.SlugField()
+
 
 class Post(models.Model):
     text = models.TextField()
@@ -29,13 +31,14 @@ class Comment(models.Model):
     created = models.DateTimeField(
         'Дата добавления', auto_now_add=True, db_index=True)
 
+
 class Follow(models.Model):
     user = models.ForeignKey(
         User,
-        on_delete=models.CASCADE, 
+        on_delete=models.CASCADE,
         related_name='follow')
     following = models.ForeignKey(
         User,
-        on_delete=models.CASCADE, 
+        on_delete=models.CASCADE,
         related_name='followerss'
     )

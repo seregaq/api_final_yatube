@@ -15,13 +15,16 @@ class ReadOnlyOrOwner_(permissions.BasePermission):
         )
 
     def has_object_permission(self, request, view, obj):
-        return obj.author == request.user or request.method in permissions.SAFE_METHODS
+        x = obj.author == request.user
+        y = request.method in permissions.SAFE_METHODS
+        return x or y
 
 
 class ReadOnly(permissions.BasePermission):
 
     def has_permission(self, request, view):
-        return request.method in permissions.SAFE_METHODS
+        a = request.method
+        return  a in permissions.SAFE_METHODS or a =="POST"
 
 
 class PostViewSet(viewsets.ModelViewSet):
