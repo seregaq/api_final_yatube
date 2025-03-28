@@ -1,21 +1,18 @@
-# TODO:  Напишите свой вариант
-from rest_framework import generics, permissions, viewsets, filters
-from rest_framework.pagination import PageNumberPagination, LimitOffsetPagination
-from posts.models import Post, Comment, Group, Follow, User
-from .serializers import PostSerializer, CommentSerializer, GroupSerializer, FollowSerializer
-from django.shortcuts import get_object_or_404
+from rest_framework import permissions, viewsets, filters
+from rest_framework.pagination import LimitOffsetPagination
+from posts.models import Post, Comment, Group, Follow
+from .serializers import PostSerializer, CommentSerializer
+from .serializers import GroupSerializer, FollowSerializer
 from rest_framework.response import Response
-from django.core.exceptions import PermissionDenied
-from rest_framework import permissions
 
 
 class ReadOnlyOrOwner_(permissions.BasePermission):
 
     def has_permission(self, request, view):
         return (
-                request.method in permissions.SAFE_METHODS
-                or request.user.is_authenticated
-            )
+            request.method in permissions.SAFE_METHODS
+            or request.user.is_authenticated
+        )
 
     def has_object_permission(self, request, view, obj):
         return obj.author == request.user or request.method in permissions.SAFE_METHODS
@@ -44,13 +41,14 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user,
-        post = Post.objects.get(id=self.kwargs['post_id']))
+                        post=Post.objects.get(id=self.kwargs['post_id']))
 
 
 class GroupViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
     permission_classes = (ReadOnly,)
+
 
 class FollowViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Follow.objects.all()
@@ -59,23 +57,23 @@ class FollowViewSet(viewsets.ReadOnlyModelViewSet):
     search_fields = ['following__username']
 
     def get_queryset(self):
-        return Follow.objects.filter(user = self.request.user)
+        return Follow.objects.filter(user=self.request.user)
 
     def perform_create(self, serializer):
-        serializer.save(user = self.request.user)
+        serializer.save(user=self.request.user)
 
     def create(self, request):
         serializer = FollowSerializer(data=request.data)
-    
+
         if not serializer.is_valid():
             return Response({"error": "Неверные данные"}, status=400)
 
-        user = request.user  
+        user = request.user
         target = serializer.validated_data['following']
 
         if target.username == user.username:
             return Response(
-                {"error": "Нельзя подписаться на самого себя."}, 
+                {"error": "Нельзя подписаться на самого себя."},
                 status=400
             )
 
@@ -87,6 +85,3 @@ class FollowViewSet(viewsets.ReadOnlyModelViewSet):
 
         serializer.save(user=user, following=target)
         return Response(serializer.data, status=201)
-
-
-
