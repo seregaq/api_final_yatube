@@ -24,7 +24,7 @@ class ReadOnly(permissions.BasePermission):
 
     def has_permission(self, request, view):
         a = request.method
-        return  a in permissions.SAFE_METHODS or a =="POST"
+        return a in permissions.SAFE_METHODS or a == "POST"
 
 
 class PostViewSet(viewsets.ModelViewSet):
